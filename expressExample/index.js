@@ -23,7 +23,7 @@ app.get('/',function(req,res){
     const johnKidneys = users[0].kidneys;
     const numberOfKidneys = johnKidneys.length;
     let healthyKidneys = 0;
-    for(i=0; i<johnKidneys.length; i++){
+    for(let i=0; i<johnKidneys.length; i++){
         if(johnKidneys[i].healthy){
             healthyKidneys+=1;
         }
@@ -48,26 +48,52 @@ app.post('/',function(req,res){
 })
 
 app.put('/',function(req,res){
-  for (let i=0; i<users[0].kidneys.length; i++){
+  if(isAtleasetOneUnhealthyKidney()){
+    for (let i=0; i<users[0].kidneys.length; i++){
     users[0].kidneys[i].healthy= true; 
-  }
-  res.json({
+    }
+    res.json({
     msg:"All kidneys are healthy now ."
-  });
+    });
+  }
+  else{
+    res.status(400).json({
+      msg:"All kidneys are already healthy"
+    })
+  }
 });
 
 app.delete('/',function(req,res){
-  const newKidney = [];
-  for(let i=0 ; i<users[0].kidneys.length; i++){
+  if (isAtleasetOneUnhealthyKidney()){
+    const newKidney = [];
+    for(let i=0 ; i<users[0].kidneys.length; i++){
     if(users[0].kidneys[i].healthy){
       newKidney.push({healthy:true})
+      }
+    }
+    users[0].kidneys = newKidney;
+    res.json({
+    msg:"Removed unhealthy kidney."
+     })
+  }
+  else{
+    res.status(400).json({
+      msg: "You have no Unhealthy kidney"
+    });
+  }
+  
+})
+
+function isAtleasetOneUnhealthyKidney(){
+  let atleasetOneUnhealthyKidney = false;
+  for(let i=0 ; i<users[0].kidneys.length; i++){
+    if(!users[0].kidneys[i].healthy){
+      atleasetOneUnhealthyKidney = true;
     }
   }
-  users[0].kidneys = newKidney;
-  res.json({
-    msg:"Removed unhealthy kidney."
-  })
-})
+  return atleasetOneUnhealthyKidney;
+
+}
 
 app.listen(port, ()=>{
   console.log(`App is listening on Port ${port}`)
